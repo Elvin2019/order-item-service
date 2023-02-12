@@ -1,0 +1,37 @@
+version: '3.7'
+
+services:
+  prod-db:
+    container_name: prod-order-item-db
+    networks:
+      - app-network
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: prod-order-item-service
+      POSTGRES_PASSWORD: b3JkZXItaXRlbS1zZXJ2aWNl
+    ports:
+      - '5433:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  stage-db:
+    container_name: stage-order-item-db
+    networks:
+      - app-network
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: stage-order-item-service
+      POSTGRES_PASSWORD: b3JkZXItaXRlbS1zZXJ2aWNl
+      PGPORT: 5434
+    ports:
+      - '5435:5434'
+
+networks:
+  app-network:
+    name: global
+
+volumes:
+  db:
+    driver: local
