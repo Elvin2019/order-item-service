@@ -11,5 +11,5 @@
   "include": [
     "src/**/*",
     "migrations/**/*"
-, "jest.config.js"  ]
+ ]
 }
