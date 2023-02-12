@@ -1,11 +1,10 @@
-import { Express } from 'express';
-import { Sequelize } from 'sequelize-typescript';
 import request from 'supertest';
+import { Sequelize } from 'sequelize-typescript';
 import { createApp } from '../app';
 import { MockSequelize } from '../sequelize';
 
 describe('SaleOrderController', () => {
-  let app: Express;
+  let app: unknown;
   let saleOrderId: string;
   let saleOrderItemId: string;
   let mockSequelize: Sequelize;

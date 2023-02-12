@@ -21,7 +21,7 @@
     "lint": "eslint .",
     "sequelize": "sequelize",
     "swagger-gen": "tsoa routes && tsoa swagger",
-    "test": "jest"
+    "test": "jest --onlyChanged"
   },
   "devDependencies": {
     "@types/express": "^4.17.17",
