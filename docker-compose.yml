@@ -9,7 +9,8 @@ services:
     restart: always
     environment:
       POSTGRES_USER: prod-order-item-service
-      POSTGRES_PASSWORD: b3JkZXItaXRlbS1zZXJ2aWNl
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      PGPORT: 5432
     ports:
       - '5433:5432'
     volumes:
@@ -23,10 +24,29 @@ services:
     restart: always
     environment:
       POSTGRES_USER: stage-order-item-service
-      POSTGRES_PASSWORD: b3JkZXItaXRlbS1zZXJ2aWNl
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       PGPORT: 5434
     ports:
       - '5435:5434'
+
+  order-item-service:
+    container_name: order-item-service
+    networks:
+      - app-network
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: prod-order-item-db
+      DB_NAME: postgres
+      DB_PASSWORD: ${DATABASE_PASSWORD}
+      PROD_DB_PORT: 5432
+      PROD_DB_USER: prod-order-item-service
+      STAGE_DB_PORT: 5435
+      STAGE_DB_USER: stage-order-item-service
+    ports:
+      - 4001:4001
+    stdin_open: true
 
 networks:
   app-network:

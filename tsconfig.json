@@ -6,6 +6,10 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
-    "sourceMap": true
-  }
+    "sourceMap": true,
+  },
+  "include": [
+    "src/**/*",
+    "migrations/**/*"
+  ]
 }

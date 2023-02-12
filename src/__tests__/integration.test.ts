@@ -1,8 +1,8 @@
 import { Express } from 'express';
 import { Sequelize } from 'sequelize-typescript';
 import request from 'supertest';
-import { createApp } from '../src/app';
-import { MockSequelize } from '../src/sequelize';
+import { createApp } from '../app';
+import { MockSequelize } from '../sequelize';
 
 describe('SaleOrderController', () => {
   let app: Express;

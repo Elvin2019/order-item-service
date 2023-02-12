@@ -15,6 +15,7 @@
   },
   "scripts": {
     "build": "tsc --watch",
+    "build:prod": "tsc",
     "start": "nodemon --exec ts-node ./src/server.ts",
     "prettier": "prettier --write .",
     "lint": "eslint .",

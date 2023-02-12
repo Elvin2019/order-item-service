@@ -19,5 +19,10 @@ Testing +
 
 
 Create a docker-compose to orchestrate the following
-ExpressJS API from Step 1
+ExpressJS API from Step 1 +
 Postgres >= 13
+
+
+Sample Postman collection to your API (you can include the collection.json in GitHub)
+
+Activate GitHub Actions to do verifications (propose some actions, want to see some critical thinking related it)
