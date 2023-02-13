@@ -4,12 +4,14 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import saleOrderRouter from './sale-order/sale-order.router';
 import saleOrderItemRouter from './sale-order-items/sale-order-items.router';
+import customerRouter from './customer/customer.router';
 
 const createApp = () => {
   dotenv.config();
   const app = express();
   app.use(cors());
   app.use(bodyParser.json());
+  app.use(customerRouter);
   app.use(saleOrderRouter);
   app.use(saleOrderItemRouter);
   return app;

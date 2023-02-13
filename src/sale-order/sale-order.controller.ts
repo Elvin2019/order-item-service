@@ -32,7 +32,7 @@ export class SaleOrderController {
 
   public async create(req: Request, res: Response) {
     const schema = Joi.object({
-      customerName: Joi.string().required(),
+      customerId: Joi.string().required(),
     });
     try {
       const { error, value } = schema.validate(req.body);
@@ -48,7 +48,7 @@ export class SaleOrderController {
 
   public async update(req: Request, res: Response) {
     const schema = Joi.object({
-      customerName: Joi.string().required(),
+      customerId: Joi.string().required(),
     }).min(1);
 
     try {

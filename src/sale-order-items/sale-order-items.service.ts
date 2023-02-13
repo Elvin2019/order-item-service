@@ -1,4 +1,4 @@
-import { SaleOrderItem } from '../models/sale-order-item';
+import { SaleOrderItem } from '../models/sale-order-item.model';
 
 export class SaleOrderItemService {
   async getAll(): Promise<SaleOrderItem[]> {

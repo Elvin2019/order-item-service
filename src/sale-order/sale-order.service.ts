@@ -1,4 +1,4 @@
-import { SaleOrder } from '../models/sale-order';
+import { SaleOrder } from '../models/sale-order.model';
 
 export class SaleOrderService {
   async getAll(): Promise<SaleOrder[]> {
@@ -43,6 +43,10 @@ export class SaleOrderService {
   async delete(id: string): Promise<SaleOrder> {
     try {
       const saleOrder = await SaleOrder.findByPk(id);
+      if (!saleOrder) {
+        return null;
+      }
+      await saleOrder.destroy();
       return saleOrder;
     } catch (error) {
       return null;

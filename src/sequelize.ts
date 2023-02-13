@@ -1,7 +1,8 @@
 import { Sequelize } from 'sequelize-typescript';
-import { SaleOrder } from './models/sale-order';
-import { SaleOrderItem } from './models/sale-order-item';
+import { SaleOrder } from './models/sale-order.model';
+import { SaleOrderItem } from './models/sale-order-item.model';
 import dotenv from 'dotenv';
+import { Customer } from './models/customer.model';
 dotenv.config();
 const sequelize = new Sequelize({
   dialect: 'postgres',
@@ -13,7 +14,8 @@ const sequelize = new Sequelize({
   logging: true,
 });
 
-sequelize.addModels([SaleOrder, SaleOrderItem]);
+const models = [SaleOrder, SaleOrderItem, Customer]
+sequelize.addModels(models);
 
 export const MockSequelize = () => {
   const mockSequelize = new Sequelize({
@@ -25,7 +27,7 @@ export const MockSequelize = () => {
     password: process.env.DB_PASSWORD,
     logging: false,
   });
-  mockSequelize.addModels([SaleOrder, SaleOrderItem]);
+  mockSequelize.addModels(models);
   return mockSequelize;
 };
 

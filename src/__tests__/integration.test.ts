@@ -1,26 +1,69 @@
 import request from 'supertest';
-import { Express } from 'express';
 import { Sequelize } from 'sequelize-typescript';
 import { createApp } from '../app';
 import { MockSequelize } from '../sequelize';
+import { v4 as uuidv4 } from 'uuid';
 
-describe('SaleOrderController', () => {
-  let app: Express;
+describe('Flow for Customer , Sale order and item', () => {
+  let app: Express.Application;
+  let customerId: string;
   let saleOrderId: string;
   let saleOrderItemId: string;
   let mockSequelize: Sequelize;
+  const customer = {
+    name: 'John Doe',
+    address: '123 Main St',
+    phoneNumber: '555-555-5555',
+    emailAddress: 'johndoe@example.com',
+  };
+
   beforeAll(async () => {
     app = createApp();
     mockSequelize = MockSequelize();
     mockSequelize.sync();
   });
 
+  describe('/customers', () => {
+    it('should return an array of customers', async () => {
+      const response = await request(app).get('/customers');
+      expect(response.status).toBe(200);
+      expect(Array.isArray(response.body.customers)).toBe(true);
+    });
+
+    it('should create a customer', async () => {
+      const response = await request(app).post('/customers').send(customer);
+      expect(response.status).toBe(201);
+      expect(response.body.customer).toEqual(expect.objectContaining(customer));
+      customerId = response.body.customer.id;
+    });
+
+    it('should return a customer by id', async () => {
+      const response = await request(app).get(`/customers/${customerId}`);
+      expect(response.status).toBe(200);
+      expect(response.body.customer).toEqual(expect.objectContaining(customer));
+    });
+
+    it('should update a customer by id', async () => {
+      const updatedCustomer = {
+        name: 'Jane Doe',
+        address: '789 Main St',
+        phoneNumber: '555-555-5555',
+        emailAddress: 'janedoe@example.com',
+      };
+      const response = await request(app).put(`/customers/${customerId}`).send(updatedCustomer);
+      expect(response.status).toBe(200);
+      expect({ ...updatedCustomer, ...response.body.customer }).toEqual(
+        expect.objectContaining(updatedCustomer)
+      );
+    });
+  });
+
   describe('POST /sale-order/', () => {
     it('should create a new sale order', async () => {
-      const payload = { customerName: 'Jane Doe' };
+      const payload = { customerId };
       const response = await request(app).post('/sale-order').send(payload);
       expect(response.status).toBe(201);
-      expect(response.body.customerName).toEqual('Jane Doe');
+      expect(response.body.customerId).toEqual(customerId);
       saleOrderId = response.body.id;
     });
 
@@ -28,7 +71,7 @@ describe('SaleOrderController', () => {
       const payload = {};
       const response = await request(app).post('/sale-order').send(payload);
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({ message: '"customerName" is required' });
+      expect(response.body).toEqual({ message: '"customerId" is required' });
     });
   });
 
@@ -36,7 +79,7 @@ describe('SaleOrderController', () => {
     it('should return a sale order by id', async () => {
       const response = await request(app).get(`/sale-order/${saleOrderId}`);
       expect(response.status).toBe(200);
-      expect(response.body.customerName).toEqual('Jane Doe');
+      expect(response.body.customerId).toEqual(customerId);
     });
 
     it('should return a 404 status code if the sale order is not found', async () => {
@@ -48,17 +91,20 @@ describe('SaleOrderController', () => {
 
   describe('PUT/sale-order', () => {
     it('should update a sale order', async () => {
+      const response = await request(app).post('/customers').send(customer);
+      expect(response.status).toBe(201);
+      let updatedCustomerId = response.body.customer.id;
       const res = await request(app).put(`/sale-order/${saleOrderId}`).send({
-        customerName: 'Updated John Doe',
+        customerId: updatedCustomerId,
       });
 
       expect(res.status).toEqual(200);
-      expect(res.body).toHaveProperty('customerName', 'Updated John Doe');
+      expect(res.body).toHaveProperty('customerId', `${updatedCustomerId}`);
     });
 
     it('should return 400 Bad Request if data is invalid', async () => {
       const res = await request(app).put(`/sale-order/${saleOrderId}`).send({
-        customerName: '',
+        customerId: '',
       });
 
       expect(res.status).toEqual(400);
@@ -67,7 +113,7 @@ describe('SaleOrderController', () => {
 
     it('should return 404 Not Found if sale order is not found', async () => {
       const res = await request(app).put('/sale-order/unknown-id').send({
-        customerName: 'Updated John Doe',
+        customerId: uuidv4(),
       });
 
       expect(res.status).toEqual(404);
@@ -85,16 +131,14 @@ describe('SaleOrderController', () => {
     it('should return 500 if there is an internal server error', async () => {
       const response = await request(app)
         .post('/sale-order-items')
-        .send({ name: 'item 1', price: '10', quantity: 2, saleOrderId: '123' });
+        .send({ name: 'item 1', code: '124', price: '10', quantity: 2, saleOrderId: '123' });
       expect(response.status).toBe(500);
       expect(response.body).toEqual({ message: 'Internal Server Error' });
     });
 
     it('should return the created sale order item', async () => {
-      const saleOrderItem = { name: 'item 1', price: 10, quantity: 2, saleOrderId };
-      const response = await request(app)
-        .post('/sale-order-items')
-        .send({ name: 'item 1', price: 10, quantity: 2, saleOrderId });
+      const saleOrderItem = { name: 'item 1', code: '123', price: 10, quantity: 2, saleOrderId };
+      const response = await request(app).post('/sale-order-items').send(saleOrderItem);
       expect(response.status).toBe(201);
       expect(response.body).toEqual({ ...response.body, ...saleOrderItem });
       saleOrderItemId = response.body.id;
@@ -112,7 +156,13 @@ describe('SaleOrderController', () => {
     });
 
     it('should return 404 if sale order item not found', async () => {
-      const updatedSaleOrderItem = { name: 'item2', price: 20, quantity: 4, saleOrderId: '123' };
+      const updatedSaleOrderItem = {
+        name: 'item2',
+        code: '123',
+        price: 20,
+        quantity: 4,
+        saleOrderId: '123',
+      };
 
       const { body } = await request(app)
         .put(`/sale-order-items/unknown-id`)
@@ -170,6 +220,18 @@ describe('SaleOrderController', () => {
     it('should return a 404 if the sale order does not exist', async () => {
       const response = await request(app).delete('/sale-order/100').expect(404);
       expect(response.body.message).toBe('Sale order  not found');
+    });
+  });
+
+  describe('DELETE /customers/:id', () => {
+    it('should delete a customer and return a message', async () => {
+      const response = await request(app).delete(`/customers/${customerId}`).expect(200);
+      expect(response.body.message).toBe('Customer deleted successfully');
+    });
+
+    it('should return a 404 if the customer does not exist', async () => {
+      const response = await request(app).delete('/customers/100').expect(404);
+      expect(response.body.message).toBe('Customer not found');
     });
   });
 

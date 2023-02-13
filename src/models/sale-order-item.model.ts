@@ -7,7 +7,7 @@ import {
   BelongsTo,
   BeforeCreate,
 } from 'sequelize-typescript';
-import { SaleOrder } from './sale-order';
+import { SaleOrder } from './sale-order.model';
 import { v4 as uuidv4 } from 'uuid';
 
 @Table
@@ -20,6 +20,9 @@ export class SaleOrderItem extends Model<SaleOrderItem> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   name: string;
+
+  @Column({ type: DataType.STRING, allowNull: false })
+  code: string;
 
   @Column(DataType.DOUBLE)
   price: number;

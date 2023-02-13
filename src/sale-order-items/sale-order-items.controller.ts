@@ -33,6 +33,7 @@ export class SaleOrderItemController {
   public async create(req: Request, res: Response) {
     const schema = Joi.object({
       name: Joi.string().required(),
+      code: Joi.string().required(),
       price: Joi.number().min(0).required(),
       quantity: Joi.number().min(0).required(),
       saleOrderId: Joi.string().required(),
@@ -53,6 +54,7 @@ export class SaleOrderItemController {
   public async update(req: Request, res: Response) {
     const schema = Joi.object({
       name: Joi.string(),
+      code: Joi.string(),
       price: Joi.number().min(0),
       quantity: Joi.number().min(0),
       saleOrderId: Joi.string(),
